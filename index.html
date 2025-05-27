@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>STORE MLBB</title>
+<style>
+  @keyframes fadeInUp { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
+  @keyframes glowPulse { 0%, 100% {box-shadow: 0 0 8px #ff3b3b;} 50% {box-shadow: 0 0 20px #ff6b6b;} }
+  @keyframes slideInDetail { from {opacity: 0; transform: translateY(30px);} to {opacity: 1; transform: translateY(0);} }
+
+  body {
+    font-family: 'Arial', sans-serif;
+    background: #1a1a1a;
+    color: #eee;
+    margin: 0; padding: 0;
+    transition: background-color 0.5s ease, color 0.5s ease;
+  }
+
+  body.light-theme {
+    background-color: #eee;
+    color: #222;
+  }
+
+  header {
+    background: #ff3b3b;
+    padding: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #eee;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  body.light-theme header {
+    background-color: #ff3b3b;
+    color: #222;
+  }
+
+  #themeToggle {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #eee;
+    transition: color 0.3s ease;
+    order: -1; /* supaya di kiri */
+  }
+  body.light-theme #themeToggle {
+    color: #222;
+  }
+
+  #themeToggle:hover {
+    color: #fff9f9;
+  }
+
+  .filter {
+    display: flex;
+    justify-content: center;
+    margin: 15px 0;
+    gap: 10px;
+  }
+  .filter button {
+    background: #2a2a2a;
+    border: none;
+    color: #eee;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  .filter button.active,
+  .filter button:hover {
+    background: #ff3b3b;
+  }
+
+  .hero-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0 20px 20px;
+    gap: 15px;
+  }
+
+  .hero-card {
+    background: #2a2a2a;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 570px;
+    height: 240px;
+    box-shadow: 0 0 8px #ff3b3b;
+    overflow: hidden;
+    cursor: pointer;
+    animation: fadeInUp 0.6s ease forwards;
+    transform-origin: center bottom;
+    transition: transform 0.3s ease, box-shadow 0.6s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero-card:hover {
+    animation: glowPulse 1.5s infinite alternate;
+    transform: scale(1.03);
+    box-shadow: 0 0 25px #ff4b4b, 0 0 15px #ff1a1a;
+  }
+
+  .hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+
+  .hero-card:hover .hero-img {
+    transform: scale(1.05);
+  }
+
+  /* Teks di bawah gambar dihilangkan */
+
+  .hero-detail {
+    max-width: 500px;
+    margin: 0 auto 30px;
+    background: #2a2a2a;
+    border-radius: 10px;
+    padding: 15px 20px;
+    box-shadow: 0 0 12px #ff3b3b;
+    animation: slideInDetail 0.5s ease forwards;
+  }
+  .hero-detail h2 {
+    margin-top: 0;
+    color: #ff3b3b;
+  }
+  .hero-detail p {
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  .buy-section {
+    margin-top: 15px;
+    text-align: center;
+  }
+  .buy-button {
+    background: #ff3b3b;
+    border: none;
+    padding: 12px 25px;
+    color: #eee;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  .buy-button:hover {
+    background: #ff6b6b;
+  }
+
+  #opsiButton {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: #444;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 5px;
+    z-index: 10000;
+    cursor: pointer;
+  }
+
+  #adminPanel {
+    display: none;
+    position: fixed;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2a2a2a;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 12px #ff3b3b;
+    z-index: 10000;
+    max-width: 1200px;
+    width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  #adminPanel input,
+  #adminPanel button {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 5px;
+  }
+
+  #adminPanel button {
+    background: #ff3b3b;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  #adminPanel button:hover {
+    background: #ff6b6b;
+  }
+
+  #adminHeroList div {
+    background: #1f1f1f;
+    padding: 5px;
+    margin: 3px 0;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #adminHeroList div strong {
+    color: #ff3b3b;
+  }
+
+  #adminHeroList div button {
+    width: auto;
+    margin-left: 5px;
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <button id="themeToggle" aria-label="Toggle theme">🌙</button>
+  JB AKUN BY Nell
+</header>
+
+<div class="filter">
+  <button class="active" data-role="all">ALL</button>
+  <button data-role="fighter">GM</button>
+  <button data-role="marksman">EPIC</button>
+  <button data-role="mage">LEGEND</button>
+</div>
+
+<section class="hero-list" id="heroList"></section>
+
+<section class="hero-detail" id="heroDetail" style="display:none;">
+  <h2 id="detailName"></h2>
+  <p><strong>Role:</strong> <span id="detailRole"></span></p>
+  <p id="detailDesc"></p>
+  <div class="buy-section">
+    <button class="buy-button" id="buyButton">Beli</button>
+  </div>
+</section>
+
+<button id="opsiButton">Opsi</button>
+
+<div id="adminPanel">
+  <h3 style="color:#ff3b3b; text-align:center;">Admin Panel</h3>
+  <input type="password" id="adminPass" placeholder="Password admin" />
+  <button onclick="validateAccess()">Masuk</button>
+
+  <div id="formSection" style="display:none;">
+    <h4 style="color:#ff3b3b;">Tambah / Edit Rank</h4>
+    <input id="newName" placeholder="Nama Rank" />
+    <input id="newRole" placeholder="Role (fighter/mage/marksman)" />
+    <input id="newImg" placeholder="Link Gambar" />
+    <input id="newDesc" placeholder="Deskripsi" />
+    <input id="newContact" placeholder="Link Kontak WA" />
+    <button id="addButton" onclick="addRank()">Tambah</button>
+    <hr />
+    <h4 style="color:#ff3b3b;">Daftar Hero</h4>
+    <div id="adminHeroList" style="max-height:300px; overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- YouTube music hidden iframe -->
+<iframe width="0" height="0" src="https://youtu.be/v48RYDwC3q0?si=IVOfDKvmw7Bm2kIm" frameborder="0" allow="autoplay" style="display:none;"></iframe>
+
+<script>
+  const heroes = [
+    { name: "GM", role: "fighter", img: "ml.jpg", desc: "Next info klick Beli.", contact: "https://wa.me/628123456789" },
+    { name: "Epic", role: "marksman", img: "https://mobilelegendsinfo.com/wp-content/uploads/2020/12/Miya_ML.png", desc: "Next Info klick beli.", contact: "https://wa.me/628987654321" },
+    { name: "Legend", role: "mage", img: "https://mobilelegendsinfo.com/wp-content/uploads/2020/12/Eudora_ML.png", desc: "Next Info klick beli.", contact: "https://wa.me/628112233445" }
+  ];
+
+  const heroListEl = document.getElementById("heroList");
+  const heroDetailEl = document.getElementById("heroDetail");
+  const detailName = document.getElementById("detailName");
+  const detailRole = document.getElementById("detailRole");
+  const detailDesc = document.getElementById("detailDesc");
+  const buyButton = document.getElementById("buyButton");
+
+  // Render list tanpa teks bawah gambar
+  function renderHeroes(filter = "all") {
+    heroListEl.innerHTML = "";
+    let filtered = heroes.filter(h => filter === "all" || h.role === filter);
+    filtered.forEach((hero, i) => {
+      const card = document.createElement("div");
+      card.className = "hero-card";
+      card.dataset.index = i;
+      card.innerHTML = `<img class="hero-img" src="${hero.img}" alt="${hero.name}">`;
+      card.addEventListener("click", () => showDetail(i));
+      heroListEl.appendChild(card);
+    });
+  }
+
+  function showDetail(i) {
+    const hero = heroes[i];
+    detailName.textContent = hero.name;
+    detailRole.textContent = hero.role;
+    detailDesc.textContent = hero.desc;
+    buyButton.onclick = () => window.open(hero.contact, "_blank");
+    heroDetailEl.style.display = "block";
+    heroDetailEl.scrollIntoView({ behavior: "smooth" });
+  }
+
+  // Filter buttons
+  document.querySelectorAll(".filter button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".filter button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderHeroes(btn.dataset.role);
+      heroDetailEl.style.display = "none";
+    });
+  });
+
+  renderHeroes();
+
+  // Admin panel logic
+  const opsiButton = document.getElementById("opsiButton");
+  const adminPanel = document.getElementById("adminPanel");
+  const formSection = document.getElementById("formSection");
+  let isAdmin = false;
+
+  opsiButton.addEventListener("click", () => {
+    if (!isAdmin) {
+      adminPanel.style.display = "block";
+      formSection.style.display = "none";
+    } else {
+      // toggle form admin panel
+      if (adminPanel.style.display === "block") {
+        adminPanel.style.display = "none";
+      } else {
+        adminPanel.style.display = "block";
+        formSection.style.display = "block";
+      }
+    }
+  });
+
+  function validateAccess() {
+    const pass = document.getElementById("adminPass").value;
+    if (pass === "n") {
+      isAdmin = true;
+      alert("Akses admin berhasil!");
+      formSection.style.display = "block";
+      adminPanel.style.display = "block";
+      document.getElementById("adminPass").value = "";
+      renderAdminHeroList();
+    } else {
+      alert("Password salah!");
+    }
+  }
+
+  function renderAdminHeroList() {
+    const list = document.getElementById("adminHeroList");
+    list.innerHTML = "";
+    heroes.forEach((h, i) => {
+      const div = document.createElement("div");
+      div.innerHTML = `<strong>${h.name}</strong> - ${h.role}
+        <button onclick="editHero(${i})">Edit</button>
+        <button onclick="deleteHero(${i})">Hapus</button>`;
+      list.appendChild(div);
+    });
+  }
+
+  function addRank() {
+    const name = document.getElementById("newName").value.trim();
+    const role = document.getElementById("newRole").value.trim().toLowerCase();
+    const img = document.getElementById("newImg").value.trim();
+    const desc = document.getElementById("newDesc").value.trim();
+    const contact = document.getElementById("newContact").value.trim();
+
+    if (!name || !role || !img || !desc || !contact) {
+      alert("Semua kolom harus diisi!");
+      return;
+    }
+    if (!["fighter", "mage", "marksman"].includes(role)) {
+      alert("Role harus fighter, mage, atau marksman!");
+      return;
+    }
+
+    heroes.push({ name, role, img, desc, contact });
+    renderHeroes();
+    renderAdminHeroList();
+    clearForm();
+  }
+
+  function clearForm() {
+    document.getElementById("newName").value = "";
+    document.getElementById("newRole").value = "";
+    document.getElementById("newImg").value = "";
+    document.getElementById("newDesc").value = "";
+    document.getElementById("newContact").value = "";
+  }
+
+  function editHero(i) {
+    const hero = heroes[i];
+    document.getElementById("newName").value = hero.name;
+    document.getElementById("newRole").value = hero.role;
+    document.getElementById("newImg").value = hero.img;
+    document.getElementById("newDesc").value = hero.desc;
+    document.getElementById("newContact").value = hero.contact;
+
+    // Ganti tombol tambah jadi simpan edit
+    const addBtn = document.getElementById("addButton");
+    addBtn.textContent = "Simpan Edit";
+    addBtn.onclick = function () {
+      if (!isAdmin) {
+        alert("Akses ditolak.");
+        return;
+      }
+      const name = document.getElementById("newName").value.trim();
+      const role = document.getElementById("newRole").value.trim().toLowerCase();
+      const img = document.getElementById("newImg").value.trim();
+      const desc = document.getElementById("newDesc").value.trim();
+      const contact = document.getElementById("newContact").value.trim();
+
+      if (!name || !role || !img || !desc || !contact) {
+        alert("Semua kolom harus diisi!");
+        return;
+      }
+      if (!["fighter", "mage", "marksman"].includes(role)) {
+        alert("Role harus fighter, mage, atau marksman!");
+        return;
+      }
+
+      heroes[i] = { name, role, img, desc, contact };
+      renderHeroes();
+      renderAdminHeroList();
+      clearForm();
+      addBtn.textContent = "Tambah";
+      addBtn.onclick = addRank;
+    };
+  }
+
+  function deleteHero(i) {
+    if (confirm("Yakin ingin menghapus rank ini?")) {
+      heroes.splice(i, 1);
+      renderHeroes();
+      renderAdminHeroList();
+      heroDetailEl.style.display = "none";
+    }
+  }
+
+  // Theme toggle
+  const themeToggle = document.getElementById("themeToggle");
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("light-theme");
+    themeToggle.textContent = document.body.classList.contains("light-theme") ? "🌞" : "🌙";
+  });
+</script>
+
+</body>
+</html>
